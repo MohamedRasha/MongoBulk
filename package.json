@@ -1,0 +1,25 @@
+{
+  "name": "MongoDB_ITI",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
+    "generate-schema": "^2.5.1",
+    "jquery": "^3.2.1",
+    "mongodb": "^2.2.33",
+    "mongoose": "^4.12.0",
+    "nodemon": "^1.12.1",
+    "request": "^2.83.0",
+    "underscore": "^1.8.3",
+    "yargs": "^9.0.1"
+  }
+}
