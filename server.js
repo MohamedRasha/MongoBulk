@@ -23,4 +23,4 @@ app.use(express.static("public"));
 app.use(express.static('E:\BioHome\src\Syngenta.DWS.Web.Presentation'))
 mongoose.connect('mongodb://localhost:27017/DWS');
 
-app.listen(8083, console.log('start')) 
+app.listen(8095, console.log('start')) 

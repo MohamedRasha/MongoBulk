@@ -3,6 +3,7 @@ var $ = require('jquery');
 var mongodbResult;
 var reportList = [];
 var _ = require('underscore');
+
 var yargs = require('yargs');
 var FinalResult = [];
 var request = require('request');
@@ -14,7 +15,7 @@ var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/DWS";
 var GenerateSchema = require('generate-schema')
 var Schema = mongo.Schema;
-
+var Protocols=[];
 // MongoClient.connect(url, function(err, db) {
 //   if (err) throw err;
 //   db.collection("AnalysisReports").findOne({}, function(err, result) {
@@ -26,10 +27,7 @@ var Schema = mongo.Schema;
 
 mongo.connect('mongodb://localhost:27017/DWS');
 
-// mongo.model('AnalysisReports2', new Schema(
-//     { ReportId: Number}
-// ));
-// var AnalysisReports = mongo.model('AnalysisReports2');
+
 
 function arrayss(arr) {
     let stringArray = "[";
@@ -56,8 +54,9 @@ function GetProtocols(req, res) {
         console.log("Hooooooooooooooooo")
         mongo.connection.db.eval("GetUserReports('2016-01-01','2020-01-01','RASHA.SAYED','CP',0,10000)")
             .then(function(_res) {
-
-                tests(_res)
+                Protocols=[];
+                Protocols=_res;
+           //     tests(_res)
 
                 res.status(201).send({ ProtocolCount: FinalResult.ProtocolCount, ReportCount: FinalResult.ReportCount, Reports: FinalResult.Reports })
             }).catch(function(reason) {
@@ -106,11 +105,14 @@ function GetProtocols(req, res) {
         console.log('"' + FunctionMessage + '"')
         mongo.connection.db.eval(FunctionMessage)
             .then(function(_res) {
+                Protocols=[];
+                Protocols=_res;
                 console.log("Hooooooooooooooosdsdoo")
                 
-                tests(_res, req.body.UserId)
+               // tests(_res, req.body.UserId)
 
-                res.status(201).send({ ProtocolCount: FinalResult.ProtocolCount, ReportCount: FinalResult.ReportCount, Reports: FinalResult.Reports })
+              //  res.status(201).send({ ProtocolCount: FinalResult.ProtocolCount, ReportCount: FinalResult.ReportCount, Reports: FinalResult.Reports })
+            GetReports(req,res)
             })
 
 
@@ -119,20 +121,101 @@ function GetProtocols(req, res) {
 
 }
 
-function GetReports(req, res) {
+ function GetReports(req, res) {
 
-    ARCon.find({}).then(function(_res){
-    console.log(JSON.stringify(_res,undefined,2));
-    res.status(200).send({ reports: _res})
+    // ARCon.find({}).then(function(_res){
+    // console.log(JSON.stringify(_res,undefined,2));
+    // res.status(200).send({ reports: _res})
+// }
+//   )
+
+      MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  db.collection("AnalysisReportsOLD").find({}).toArray( function(err, _res) {
+
+    if (err) throw err;
+    Reports=[];
+    Reports=_res; 
+    console.log(Protocols.length)
+   // Aggregate(Protocols,Reports)
+    res.status(200).send({ reports: Aggregate(Protocols,Reports)})
+    db.close();
+  });
+});
+ 
+
+  
 }
-  )
+function search(nameKey, myArray){
+   
+    for (var i=0; i < myArray.length; i++) {
+        
+        if (myArray[i].Name === nameKey) {
+            return myArray[i].Values;
+            
+        }
+        else{
+            return null 
+        }
+    }
+}
+var output=[];
+function Aggregate(protocolListDTO , analysisListDTO){
+  
+    count=1;
+     console.log("Aggregate",protocolListDTO.length)
+  console.log("Aggregate",analysisListDTO.length)
+    
+    for (var   report of analysisListDTO)
+    {
+        for (let protocol of protocolListDTO)
+     
+      {
+       let x =   search("Protocol",report.DataFilterList)
+if(x){
+   
+    if(_.contains(x,protocol.ShortName))
+    output.push(
+        {
+            ProtocolId: protocol.ProtocolId,
+            
+                        ProtocolTitle: protocol.Title,
+            
+                        ProtocolShortName: `<a href='${ProtocolURL}${globalFunc.ExtractNumberWithoutZeroAtEndOfString(
+                            protocol.ProtocolId)}'target='_blank'>${protocol.ShortName}</a> `,
+                        ProtocolOwner: protocol.OwnedBy != null ? protocol.OwnedBy.FirstName +
+                            " " + protocol.OwnedBy.LastName : "",
+                        Countries: globalFunc.ConvertArrayToString(protocol.ConfirmedDistributionList, "Country", "Name", ","),
+                        BusinessUnit: protocol.BusinessUnit,
+                        NumberOfTrials: protocol.BusinessUnit.toLocaleLowerCase() == "CP".toLocaleLowerCase() ?
+                            globalFunc.GetItemCount(protocol.ConfirmedDistributionList, "ConfirmedDemand") : GetItemCount(protocol.ConfirmedDistributionList, "NumberOfTrials"),
+                        Targets: globalFunc.ConvertArrayToString(protocol.ProtocolTargetList, "Target", "Name", ","),
+                        Crops: globalFunc.ConvertArrayToString(protocol.ConfirmedDistributionList, "Crops", "Name", ","),
+                        Discipline: protocol.Discipline != null ? protocol.Discipline ? protocol.Discipline.Name : "" : "",
+                        PiLeadAi: globalFunc.ConvertArrayToString(
+                            protocol.ActivityList, 'PILeadAI', "", ","),
+                        ReportName: `${report.ReportName},${report.ReportUrl},${report.WorkBookId},${report.ReportId}`,
+                        // DatasetUrl: `${ globalFunc.ConvertArrayToString(item.Reports,"DataSetId","",",")},${
+                        //         globalFunc.ConvertArrayToString(item.Reports,"DatasetUrl","",",")}`,
+                        // ReportId: globalFunc.ConvertArrayToString(item.Reports, "ReportId", "", ","),
+                        // ReportType: globalFunc.ConvertArrayToString(item.Reports, "ReportType", "", ","),
+                        // ReportStatus: globalFunc.ConvertArrayToString(item.Reports, "ReportStatus", "", ","),
+                        // DataFilter: `${globalFunc.ConvertArrayToString(item.Reports[0].DataFilterList,"Name","","/")}:${globalFunc.GetItemCount(item.DataFilterList,"Name")}`,
+                        // LastViewDate: item.Reports[0].LastViewDate ? (item.Reports[0].LastViewDate.filter(dd => dd.UserId == userId))[0] : null ? (item.Reports[0].LastViewDate.filter(dd => dd.UserId == "RASHA.SAYED"))[0].Date : null
+                   
+           
+           
+        }
 
-       
+    )
+}
+   
+}
+}
 
-    // AnalysisReports.find({},function(err, data){
-    //     var _data=JSON.stringify(data)
-    //     res.status(200).send({ reports: _data})
-    // });
+
+console.log(output.length,"lk")
+return output
 }
 
 function AddMany(req,res){
@@ -211,3 +294,4 @@ function tests(res, userId) {
 module.exports = { GetProtocols: GetProtocols, GerReports:GetReports };
 
 
+   
