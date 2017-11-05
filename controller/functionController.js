@@ -11,25 +11,14 @@ var ARCon=require('../Collection/ARCollection');
 console.log(yargs.argv)
 // var AnlysisReportsModel = require('../Collection/ARCollection');
 var MongoClient = require('mongodb').MongoClient;
-var url = "mongodb://localhost:27017/DWS";
+var url = "mongodb://dwsMongoAdmin:lifeTyrannicSticker@dws-db-dev.syngentaaws.org:27017/DWS";
 var GenerateSchema = require('generate-schema')
 var Schema = mongo.Schema;
 
-// MongoClient.connect(url, function(err, db) {
-//   if (err) throw err;
-//   db.collection("AnalysisReports").findOne({}, function(err, result) {
-//     if (err) throw err;
-//     console.log(result.name);
-//     db.close();
-//   });
-// });
 
-mongo.connect('mongodb://localhost:27017/DWS');
 
-// mongo.model('AnalysisReports2', new Schema(
-//     { ReportId: Number}
-// ));
-// var AnalysisReports = mongo.model('AnalysisReports2');
+mongo.connect('mongodb://dwsMongoAdmin:lifeTyrannicSticker@dws-db-test.syngentaaws.org:27017/DWS');
+
 
 function arrayss(arr) {
     let stringArray = "[";
@@ -101,35 +90,36 @@ function GetProtocols(req, res) {
         }
         let ShortNames = [];
         let FunctionMessage = ` FilterReports('2016-01-01','2020-01-01','${req.body.BusinessUnit}',
-        ${NeededByFrom},${NeededByTo},${arrayss(req.body.ShortNames)},${arrayss(req.body.TrialStartYears)}
-       ,${arrayss(req.body.Disciplines)},${arrayss(req.body.Owners)},${arrayss(req.body.Contributors)},${arrayss(req.body.Reviewers)},${arrayss(req.body.Regions)},${arrayss(req.body.Territories)},${arrayss(req.body.Countries)},0,5000)`;
-        console.log('"' + FunctionMessage + '"')
-        mongo.connection.db.eval(FunctionMessage)
-            .then(function(_res) {
-                console.log("Hooooooooooooooosdsdoo")
-                
-                tests(_res, req.body.UserId)
-
-                res.status(201).send({ ProtocolCount: FinalResult.ProtocolCount, ReportCount: FinalResult.ReportCount, Reports: FinalResult.Reports })
-            })
-
-
-
+       ${NeededByFrom},${NeededByTo},${arrayss(req.body.ShortNames)},${arrayss(req.body.TrialStartYears)}
+         ,${arrayss(req.body.Disciplines)},${arrayss(req.body.Owners)},${arrayss(req.body.Contributors)},${arrayss(req.body.Reviewers)},${arrayss(req.body.Regions)},${arrayss(req.body.Territories)},${arrayss(req.body.Countries)},0,5000)`;
+             //"FilterReports('2016-01-01','2020-01-01'," + req.body.BusinessUnit + "," + NeededByFrom + "," + NeededByTo + "," + ShortNames + ",[],[],[],[],[],[],[],[],0,5000)";
+             console.log('"' + FunctionMessage + '"')
+             mongo.connection.db.eval(FunctionMessage)
+                 .then(function(_res) {
+     
+                     tests(_res, req.body.UserId)
+     
+                     res.status(201).send({ ProtocolCount: FinalResult.ProtocolCount, ReportCount: FinalResult.ReportCount, Reports: FinalResult.Reports })
+                 }).catch(e=>console.log(e))
+     
     }
 
 }
 
 function GetReports(req, res) {
 
-    ARCon.find({}).then(function(_res){
-    console.log(JSON.stringify(_res,undefined,2));
-    res.status(200).send({ reports: _res})
-}
-  )
-
+MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  db.collection("AnalysisReports").find({}).toArray( function(err, data) {
+    if (err) throw err;
+      
+    res.status(200).send({ reports: data})
+    db.close();
+  });
+});
        
 
-    // AnalysisReports.find({},function(err, data){
+    // ARCon.find({},function(err, data){
     //     var _data=JSON.stringify(data)
     //     res.status(200).send({ reports: _data})
     // });

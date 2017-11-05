@@ -64,11 +64,12 @@ var AnalysisAndReportsSchema = new Schema({
     DataSetLastViewDate: {
         type: Date
     },
-       
+    _id: {type: mongoose.Schema.ObjectId, select: false},
+    __v: {type: Number, select: false},
         
-},{
-    versionKey: false // You should be aware of the outcome after set to false
-});
+ },{ collection : 'AnalysisReports_copy' } );
+AnalysisAndReportsSchema.set('collection', 'AnalysisReports_copy');
+var collectionName = 'AnalysisReports_copy'
 
-module.exports = mongoose.model('AnalysisReports', AnalysisAndReportsSchema);
+module.exports = mongoose.model("analysisReports_copy", AnalysisAndReportsSchema);
 
