@@ -122,25 +122,12 @@ function GetProtocols(req, res) {
 
  function GetReports(req, res) {
 
-    // ARCon.find({}).then(function(_res){
-    // console.log(JSON.stringify(_res,undefined,2));
-    // res.status(200).send({ reports: _res})
-// }
-//   )
+    ARCon.find({}).then(function(_res){
+    console.log(JSON.stringify(_res,undefined,2));
+    res.status(200).send({ reports: _res})
+}
+  )
 
-      MongoClient.connect(url, function(err, db) {
-  if (err) throw err;
-  db.collection("AnalysisReports_copy").find({}).toArray( function(err, _res) {
-
-    if (err) throw err;
-    Reports=[];
-    Reports=_res; 
-    console.log(Protocols.length)
-   // Aggregate(Protocols,Reports)
-    res.status(200).send({ reports: Aggregate(Protocols,Reports)})
-    db.close();
-  });
-});
  
 
   
