@@ -26,6 +26,7 @@ var Protocols=[];
 // });
 
 
+mongo.connect('mongodb://dwsMongoAdmin:lifeTyrannicSticker@dws-db-dev.syngentaaws.org:27017/DWS');
 
 
 function arrayss(arr) {
@@ -45,7 +46,6 @@ function arrayss(arr) {
         return "[]";
     }
 }
-
 function GetProtocols(req, res) {
  
 
@@ -130,7 +130,7 @@ function GetProtocols(req, res) {
 
       MongoClient.connect(url, function(err, db) {
   if (err) throw err;
-  db.collection("AnalysisReportsOLD").find({}).toArray( function(err, _res) {
+  db.collection("AnalysisReports_copy").find({}).toArray( function(err, _res) {
 
     if (err) throw err;
     Reports=[];
@@ -194,13 +194,12 @@ if(x){
                         PiLeadAi: globalFunc.ConvertArrayToString(
                             protocol.ActivityList, 'PILeadAI', "", ","),
                         ReportName: `${report.ReportName},${report.ReportUrl},${report.WorkBookId},${report.ReportId}`,
-                        // DatasetUrl: `${ globalFunc.ConvertArrayToString(item.Reports,"DataSetId","",",")},${
-                        //         globalFunc.ConvertArrayToString(item.Reports,"DatasetUrl","",",")}`,
-                        // ReportId: globalFunc.ConvertArrayToString(item.Reports, "ReportId", "", ","),
-                        // ReportType: globalFunc.ConvertArrayToString(item.Reports, "ReportType", "", ","),
-                        // ReportStatus: globalFunc.ConvertArrayToString(item.Reports, "ReportStatus", "", ","),
-                        // DataFilter: `${globalFunc.ConvertArrayToString(item.Reports[0].DataFilterList,"Name","","/")}:${globalFunc.GetItemCount(item.DataFilterList,"Name")}`,
-                        // LastViewDate: item.Reports[0].LastViewDate ? (item.Reports[0].LastViewDate.filter(dd => dd.UserId == userId))[0] : null ? (item.Reports[0].LastViewDate.filter(dd => dd.UserId == "RASHA.SAYED"))[0].Date : null
+                        DatasetUrl: `${report.DataSetId},${report.DatasetUrl}`,
+                        ReportId: report.Reports,
+                        ReportType: report.ReportType,
+                        ReportStatus: report.Reports,
+                        DataFilter: `${globalFunc.ConvertArrayToString(report.DataFilterList,"Name","","/")}:${globalFunc.GetItemCount(item.DataFilterList,"Name")}`,
+                        LastViewDate: report.LastViewDate ? (report.LastViewDate.filter(dd => dd.UserId == userId))[0] : null ? (item.Reports[0].LastViewDate.filter(dd => dd.UserId == "RASHA.SAYED"))[0].Date : null
                    
            
            
